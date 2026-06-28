@@ -40,30 +40,73 @@
   .tab.active{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#04121f;border-color:transparent}
   .tab.livetab.active{background:linear-gradient(90deg,#ff4d4d,#ea3943);color:#fff}
 
+  /* ===== GÓL-ANIMÁCIÓ ===== */
+  .goalscene{position:relative;height:200px;margin:24px auto 6px;max-width:780px;border-radius:22px;overflow:hidden;
+    background:linear-gradient(180deg,#0b3d1e,#0a5a2a 55%,#0c6b34);border:1px solid #1f7a45;
+    box-shadow:0 18px 44px rgba(0,0,0,.45),inset 0 0 70px #00000055}
+  .goalscene .line{position:absolute;left:0;right:0;bottom:0;height:62%;
+    background:repeating-linear-gradient(90deg,#ffffff00 0 48px,#ffffff12 48px 96px);
+    transform:perspective(280px) rotateX(46deg);transform-origin:bottom}
+  .goalscene .arc{position:absolute;left:0;right:0;top:18px;height:1px}
+  .goalframe{position:absolute;right:9%;top:30px;width:148px;height:96px;z-index:2}
+  .goalframe span{position:absolute;background:linear-gradient(#fff,#cfd6e6);border-radius:2px;box-shadow:0 0 6px #fff6}
+  .goalframe .post{top:0;width:5px;height:100%}
+  .goalframe .pl{left:0}.goalframe .pr{right:0}
+  .goalframe .bar{top:0;left:0;right:0;height:5px}
+  .goalframe .net{position:absolute;inset:5px 4px 0;background:
+    linear-gradient(45deg,#ffffff26 1px,transparent 1px),linear-gradient(-45deg,#ffffff26 1px,transparent 1px);
+    background-size:12px 12px;transform-origin:right center;animation:nethit 4.2s ease-in-out infinite;box-shadow:none}
+  .keeper{position:absolute;right:14%;top:74px;font-size:30px;z-index:3;filter:drop-shadow(0 2px 3px #000);
+    animation:dive 4.2s ease-in-out infinite}
+  .ball{position:absolute;left:8%;bottom:18%;font-size:30px;transform:translate(-50%,50%);z-index:4;
+    filter:drop-shadow(0 3px 4px #0009);animation:shoot 4.2s cubic-bezier(.3,0,.55,1) infinite}
+  .flash{position:absolute;inset:0;pointer-events:none;opacity:0;
+    background:radial-gradient(circle at 84% 42%,#fff,transparent 32%);animation:gflash 4.2s ease-in-out infinite}
+  .goalword{position:absolute;left:0;right:0;top:36%;text-align:center;font-size:clamp(28px,6vw,40px);font-weight:900;font-style:italic;
+    color:#fff;letter-spacing:1px;text-shadow:0 2px 0 #0a5a2a,0 0 22px #16c784;opacity:0;z-index:5;
+    animation:gword 4.2s ease-in-out infinite}
+  @keyframes shoot{
+    0%,14%{left:8%;bottom:18%;transform:translate(-50%,50%) scale(1) rotate(0);opacity:1}
+    40%{left:54%;bottom:60%;transform:translate(-50%,50%) scale(.62) rotate(880deg);opacity:1}
+    52%{left:80%;bottom:62%;transform:translate(-50%,50%) scale(.46) rotate(1300deg);opacity:1}
+    56%{left:82%;bottom:55%;transform:translate(-50%,50%) scale(.45) rotate(1440deg);opacity:1}
+    58%,100%{left:82%;bottom:55%;transform:translate(-50%,50%) scale(.45);opacity:0}}
+  @keyframes nethit{0%,52%{transform:scale(1)}55%{transform:scale(1.07,.94)}60%{transform:scale(.98,1.02)}65%,100%{transform:scale(1)}}
+  @keyframes dive{0%,28%{transform:translateY(0) rotate(0)}48%{transform:translate(16px,10px) rotate(38deg)}66%,100%{transform:translateY(0) rotate(0)}}
+  @keyframes gflash{0%,53%{opacity:0}56%{opacity:.6}62%,100%{opacity:0}}
+  @keyframes gword{0%,54%{opacity:0;transform:scale(.5)}59%{opacity:1;transform:scale(1.14)}66%{transform:scale(1)}84%{opacity:1}93%,100%{opacity:0}}
   /* ===== PLAYERS ===== */
   .psearchwrap{max-width:580px;margin:0 auto 6px;text-align:center}
   .psearch{width:100%;background:var(--card);border:1px solid var(--line);border-radius:40px;padding:15px 24px;color:var(--txt);font-size:16px;outline:none;transition:.22s}
   .psearch:focus{border-color:var(--accent2);box-shadow:0 0 0 4px rgba(59,130,246,.18)}
   .psearch::placeholder{color:#5e6a85}
   .phint{color:var(--muted);font-size:12px;margin-top:11px}
-  .pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(212px,1fr));gap:16px;margin-top:18px}
-  .pcard{background:linear-gradient(160deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:18px;overflow:hidden;
-    opacity:0;transform:translateY(16px);animation:pin .5s cubic-bezier(.2,.8,.2,1) forwards;transition:transform .2s,border-color .2s,box-shadow .2s}
+  .pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(194px,1fr));gap:18px;margin-top:18px;perspective:1100px}
   @keyframes pin{to{opacity:1;transform:none}}
-  .pcard:hover{transform:translateY(-6px);border-color:var(--accent2);box-shadow:0 18px 42px rgba(0,0,0,.45)}
-  .pcard .photo{height:152px;background:radial-gradient(circle at 50% 18%,#2b3d63,#0d1322);display:flex;align-items:flex-end;justify-content:center;position:relative;overflow:hidden}
-  .pcard .photo img{height:160px;object-fit:contain;filter:drop-shadow(0 6px 10px #000b);transition:.3s}
-  .pcard:hover .photo img{transform:scale(1.06)}
-  .pcard .flag{position:absolute;top:10px;left:12px;font-size:27px;filter:drop-shadow(0 2px 3px #000)}
-  .pcard .num{position:absolute;top:10px;right:12px;font-size:12px;font-weight:900;color:#fff;background:#000a;padding:3px 10px;border-radius:20px}
-  .pcard .body{padding:14px 16px}
-  .pcard .pn{font-weight:800;font-size:17px;line-height:1.15}
-  .pcard .pmeta{font-size:12px;color:var(--muted);margin-top:4px}
-  .pcard .ppos{display:inline-block;margin-top:10px;font-size:11px;font-weight:700;color:var(--accent);background:#0c2a26;padding:4px 11px;border-radius:20px}
-  .pbio{display:flex;gap:10px;margin-top:13px}
-  .pbio .b{flex:1;background:#ffffff09;border:1px solid var(--line);border-radius:11px;padding:9px 6px;text-align:center}
-  .pbio .b .v{font-weight:900;font-size:16px;color:#fff}
-  .pbio .b .l{font-size:9.5px;color:var(--muted);letter-spacing:.6px;margin-top:2px}
+  .fut{position:relative;border-radius:18px;padding:15px 14px 13px;overflow:hidden;text-align:center;
+    background:radial-gradient(125% 82% at 50% -10%,#fff3c8 0,#f1d57f 25%,#cca64f 52%,#7c5f25 80%,#2b2108 100%);
+    box-shadow:0 16px 38px rgba(0,0,0,.5),inset 0 0 0 1.5px #ffe9a8aa,inset 0 2px 12px #fff7;
+    color:#241a05;opacity:0;transform:translateY(18px);animation:pin .55s cubic-bezier(.2,.8,.2,1) forwards;
+    transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s;transform-style:preserve-3d}
+  .fut:hover{transform:translateY(-8px) rotateX(6deg) rotateY(-4deg);box-shadow:0 30px 64px rgba(0,0,0,.62)}
+  .fut .sheen{position:absolute;inset:0;background:linear-gradient(115deg,transparent 40%,#ffffffcc 50%,transparent 60%);
+    transform:translateX(-130%);transition:.65s ease;pointer-events:none;mix-blend-mode:overlay}
+  .fut:hover .sheen{transform:translateX(130%)}
+  .fut .fhead{display:flex;justify-content:space-between;align-items:center;padding:0 3px}
+  .fut .fpos{font-weight:900;font-size:15px;color:#3a2c07;letter-spacing:.5px;text-shadow:0 1px 0 #fff8}
+  .fut .fflag{font-size:26px;filter:drop-shadow(0 2px 2px #0006)}
+  .fut .fphoto{height:128px;margin-top:2px;display:flex;align-items:flex-end;justify-content:center}
+  .fut .fphoto img{height:142px;object-fit:contain;filter:drop-shadow(0 8px 11px #0008)}
+  .fut .fph0{font-size:60px;opacity:.45;align-self:center}
+  .fut .fname{font-weight:900;font-size:16px;text-transform:uppercase;letter-spacing:.4px;color:#241a05;margin-top:2px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fut .fname:after{content:"";display:block;height:2px;width:52px;margin:5px auto 0;background:#3a2c07aa;border-radius:2px}
+  .fut .fclub{font-size:11px;color:#4a3a12;font-weight:700;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fut .fstats{display:flex;justify-content:center;margin-top:11px}
+  .fut .fs{flex:1;position:relative}
+  .fut .fs+.fs:before{content:"";position:absolute;left:0;top:14%;height:72%;width:1px;background:#3a2c0744}
+  .fut .fs b{display:block;font-size:18px;font-weight:900;color:#241a05;line-height:1.1}
+  .fut .fs span{font-size:9px;font-weight:700;color:#5a4715;letter-spacing:.8px}
   .ploading{grid-column:1/-1;text-align:center;color:var(--muted);padding:26px}
   .sec-title{font-size:22px;font-weight:800;margin:34px 0 16px;display:flex;align-items:center;gap:10px}
   .sec-title:before{content:"";width:5px;height:22px;border-radius:3px;background:linear-gradient(var(--accent),var(--accent2))}
@@ -167,6 +210,15 @@
     <p class="sub">Élő áttekintő — csoportállások, eredmények, statisztikák · 2026. jún. 11 – júl. 19</p>
     <div class="live"><span class="dot"></span> ÉLŐ · utolsó frissítés: <span id="upd"></span></div>
   </header>
+
+  <div class="goalscene">
+    <div class="line"></div>
+    <div class="goalframe"><span class="post pl"></span><span class="post pr"></span><span class="bar"></span><span class="net"></span></div>
+    <div class="keeper">🧤</div>
+    <div class="ball">⚽</div>
+    <div class="flash"></div>
+    <div class="goalword">GÓÓÓL! ⚽</div>
+  </div>
 
   <div class="stats">
     <div class="stat"><div class="n">48</div><div class="l">Csapat</div></div>
@@ -508,22 +560,28 @@ const BIO={'Lionel Messi':[170,72],'Kylian Mbappe':[178,73],'Erling Haaland':[19
  'Mohamed Salah':[175,71],'Florian Wirtz':[177,70],'Declan Rice':[185,80],'Robert Lewandowski':[185,81],
  'Rafael Leao':[188,81],'Bruno Fernandes':[179,69],'Toni Kroos':[183,76],'Alexis Mac Allister':[174,72]};
 function ageFrom(d){if(!d||d==='None')return '';const b=new Date(d);const a=Math.floor((Date.now()-b)/3.15576e10);return a>0&&a<60?a:'';}
+function posShort(p){if(!p||p==='None')return '—';
+ const m={'Goalkeeper':'GK','Centre-Back':'CB','Defender':'CB','Left-Back':'LB','Right-Back':'RB','Defensive Midfield':'CDM','Central Midfield':'CM','Midfielder':'CM','Attacking Midfield':'CAM','Left Midfield':'LM','Right Midfield':'RM','Left Wing':'LW','Left Winger':'LW','Right Wing':'RW','Right Winger':'RW','Centre-Forward':'ST','Striker':'ST','Forward':'ST','Second Striker':'CF'};
+ return m[p]||p.split(/[ -]/).map(w=>w[0]).join('').slice(0,3).toUpperCase();}
 function pcard(x,i){
  const name=x.strPlayer||'?'; const bio=BIO[name]||[];
- const hv=(x.strHeight&&x.strHeight!=='None')?x.strHeight:''; const wv=(x.strWeight&&x.strWeight!=='None')?x.strWeight:'';
- const h=bio[0]?bio[0]+' cm':(hv||'—'); const w=bio[1]?bio[1]+' kg':(wv||'—');
- const num=(x.strNumber&&x.strNumber!=='None')?'#'+x.strNumber:'';
+ const h=bio[0]||((x.strHeight&&x.strHeight!=='None')?(parseFloat(x.strHeight)*100|0):'');
+ const w=bio[1]||((x.strWeight&&x.strWeight!=='None')?(parseInt(x.strWeight)||''):'');
  const flag=NATFLAG[x.strNationality]||'🌍';
  const photo=(x.strCutout&&x.strCutout!=='None')?x.strCutout:((x.strThumb&&x.strThumb!=='None')?x.strThumb:'');
  const age=ageFrom(x.dateBorn);
- return `<div class="pcard" style="animation-delay:${(i||0)*55}ms">
-   <div class="photo">${photo?`<img src="${photo}" alt="" onerror="this.style.display='none'">`:'<span style="font-size:54px;opacity:.4;align-self:center">👤</span>'}
-     <span class="flag">${flag}</span>${num?`<span class="num">${num}</span>`:''}</div>
-   <div class="body"><div class="pn">${name}</div>
-     <div class="pmeta">${x.strNationality||'—'}${x.strTeam&&x.strTeam!=='None'?' · '+x.strTeam:''}${age?' · '+age+' éves':''}</div>
-     <div class="ppos">${(x.strPosition&&x.strPosition!=='None')?x.strPosition:'—'}</div>
-     <div class="pbio"><div class="b"><div class="v">${h}</div><div class="l">MAGASSÁG</div></div>
-       <div class="b"><div class="v">${w}</div><div class="l">SÚLY</div></div></div></div></div>`;
+ const pos=(x.strPosition&&x.strPosition!=='None')?x.strPosition:'';
+ const club=(x.strTeam&&x.strTeam!=='None')?x.strTeam:(x.strNationality||'');
+ return `<div class="fut" style="animation-delay:${(i||0)*55}ms">
+   <span class="sheen"></span>
+   <div class="fhead"><span class="fpos">${posShort(pos)}</span><span class="fflag">${flag}</span></div>
+   <div class="fphoto">${photo?`<img src="${photo}" alt="" onerror="this.style.display='none'">`:'<span class="fph0">👤</span>'}</div>
+   <div class="fname">${name}</div>
+   <div class="fclub">${club}</div>
+   <div class="fstats"><div class="fs"><b>${h||'—'}</b><span>CM</span></div>
+     <div class="fs"><b>${w||'—'}</b><span>KG</span></div>
+     <div class="fs"><b>${age||'—'}</b><span>KOR</span></div></div>
+ </div>`;
 }
 let pt;
 document.getElementById('pSearch').addEventListener('input',e=>{
