@@ -20,7 +20,9 @@
   .badge{display:inline-block;background:linear-gradient(90deg,var(--accent),var(--accent2));
     color:#04121f;font-weight:800;letter-spacing:.5px;padding:6px 16px;border-radius:40px;font-size:13px;margin-bottom:16px}
   h1{font-size:clamp(30px,5vw,52px);font-weight:900;letter-spacing:-1px;
-    background:linear-gradient(90deg,#fff,#9fc6ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+    background:linear-gradient(90deg,#fff,#7fd4ff,#9c8bff,#fff);background-size:260% auto;
+    -webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 6s linear infinite}
+  @keyframes shine{to{background-position:260% center}}
   .sub{color:var(--muted);margin-top:10px;font-size:16px}
   .live{display:inline-flex;align-items:center;gap:7px;color:var(--green);font-weight:700;font-size:14px;margin-top:14px}
   .dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 0 0 rgba(22,199,132,.6);animation:p 1.6s infinite}
@@ -38,6 +40,31 @@
   .tab.active{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#04121f;border-color:transparent}
   .tab.livetab.active{background:linear-gradient(90deg,#ff4d4d,#ea3943);color:#fff}
 
+  /* ===== PLAYERS ===== */
+  .psearchwrap{max-width:580px;margin:0 auto 6px;text-align:center}
+  .psearch{width:100%;background:var(--card);border:1px solid var(--line);border-radius:40px;padding:15px 24px;color:var(--txt);font-size:16px;outline:none;transition:.22s}
+  .psearch:focus{border-color:var(--accent2);box-shadow:0 0 0 4px rgba(59,130,246,.18)}
+  .psearch::placeholder{color:#5e6a85}
+  .phint{color:var(--muted);font-size:12px;margin-top:11px}
+  .pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(212px,1fr));gap:16px;margin-top:18px}
+  .pcard{background:linear-gradient(160deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:18px;overflow:hidden;
+    opacity:0;transform:translateY(16px);animation:pin .5s cubic-bezier(.2,.8,.2,1) forwards;transition:transform .2s,border-color .2s,box-shadow .2s}
+  @keyframes pin{to{opacity:1;transform:none}}
+  .pcard:hover{transform:translateY(-6px);border-color:var(--accent2);box-shadow:0 18px 42px rgba(0,0,0,.45)}
+  .pcard .photo{height:152px;background:radial-gradient(circle at 50% 18%,#2b3d63,#0d1322);display:flex;align-items:flex-end;justify-content:center;position:relative;overflow:hidden}
+  .pcard .photo img{height:160px;object-fit:contain;filter:drop-shadow(0 6px 10px #000b);transition:.3s}
+  .pcard:hover .photo img{transform:scale(1.06)}
+  .pcard .flag{position:absolute;top:10px;left:12px;font-size:27px;filter:drop-shadow(0 2px 3px #000)}
+  .pcard .num{position:absolute;top:10px;right:12px;font-size:12px;font-weight:900;color:#fff;background:#000a;padding:3px 10px;border-radius:20px}
+  .pcard .body{padding:14px 16px}
+  .pcard .pn{font-weight:800;font-size:17px;line-height:1.15}
+  .pcard .pmeta{font-size:12px;color:var(--muted);margin-top:4px}
+  .pcard .ppos{display:inline-block;margin-top:10px;font-size:11px;font-weight:700;color:var(--accent);background:#0c2a26;padding:4px 11px;border-radius:20px}
+  .pbio{display:flex;gap:10px;margin-top:13px}
+  .pbio .b{flex:1;background:#ffffff09;border:1px solid var(--line);border-radius:11px;padding:9px 6px;text-align:center}
+  .pbio .b .v{font-weight:900;font-size:16px;color:#fff}
+  .pbio .b .l{font-size:9.5px;color:var(--muted);letter-spacing:.6px;margin-top:2px}
+  .ploading{grid-column:1/-1;text-align:center;color:var(--muted);padding:26px}
   .sec-title{font-size:22px;font-weight:800;margin:34px 0 16px;display:flex;align-items:center;gap:10px}
   .sec-title:before{content:"";width:5px;height:22px;border-radius:3px;background:linear-gradient(var(--accent),var(--accent2))}
 
@@ -156,6 +183,7 @@
     <div class="tab" data-t="knockout">Egyenes kieséses</div>
     <div class="tab" data-t="bracket">🏆 Tabló</div>
     <div class="tab" data-t="scorers">Góllövőlista</div>
+    <div class="tab" data-t="players">👤 Játékosok</div>
   </div>
 
   <!-- LIVE -->
@@ -205,6 +233,17 @@
       <a id="bigWatch" class="bigwatch" href="#" onclick="openM4();return false;"><span class="pulse"></span> M4 Sport élő megnyitása</a>
       <div class="whsub" id="whSub">Az M4 Sport 0–24 él. Külön ablakban nyílik — a lejátszóban vagy F11-gyel tehető teljes képernyőre.</div>
     </div>
+  </section>
+
+  <section id="players" class="hidden">
+    <div class="sec-title">Játékos-kereső</div>
+    <div class="psearchwrap">
+      <input id="pSearch" class="psearch" placeholder="🔎 Keress egy játékost… (pl. Mbappé, Messi, Haaland, Son)" autocomplete="off">
+      <div class="phint">Élő keresés · név · ország · pozíció · magasság · súly · csapat · kép</div>
+    </div>
+    <div id="pResult" class="pgrid"></div>
+    <div class="sec-title" style="margin-top:34px">⭐ A VB sztárjai</div>
+    <div id="pFeatured" class="pgrid"></div>
   </section>
 
   <footer>
@@ -363,9 +402,10 @@ renderBracket();
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
   t.classList.add('active');
-  ['livesec','groups','results','knockout','bracket','scorers'].forEach(s=>document.getElementById(s).classList.add('hidden'));
+  ['livesec','groups','results','knockout','bracket','scorers','players'].forEach(s=>document.getElementById(s).classList.add('hidden'));
   document.getElementById(t.dataset.t).classList.remove('hidden');
   if(t.dataset.t==='bracket') setTimeout(drawConnectors,40);
+  if(t.dataset.t==='players') loadFeatured();
 });
 window.addEventListener('resize',()=>{ if(!document.getElementById('bracket').classList.contains('hidden')) drawConnectors(); });
 
@@ -448,6 +488,71 @@ function updateWatch(evs){
 }
 loadLive();
 setInterval(loadLive,30000);
+
+/* ---------- JÁTÉKOS-KERESŐ (TheSportsDB élő + valós bio) ---------- */
+const SDB='https://www.thesportsdb.com/api/v1/json/3/searchplayers.php?p=';
+const NATFLAG={Argentina:'🇦🇷',France:'🇫🇷',England:'🏴',Brazil:'🇧🇷',Spain:'🇪🇸',Germany:'🇩🇪',Portugal:'🇵🇹',
+ Netherlands:'🇳🇱',Croatia:'🇭🇷',Belgium:'🇧🇪',Norway:'🇳🇴',Morocco:'🇲🇦','South Korea':'🇰🇷',Egypt:'🇪🇬',
+ Uruguay:'🇺🇾',Japan:'🇯🇵',USA:'🇺🇸','United States':'🇺🇸',Mexico:'🇲🇽',Canada:'🇨🇦',Switzerland:'🇨🇭',Italy:'🇮🇹',
+ Senegal:'🇸🇳',Colombia:'🇨🇴',Austria:'🇦🇹',Australia:'🇦🇺',Poland:'🇵🇱',Nigeria:'🇳🇬',Ghana:'🇬🇭',Serbia:'🇷🇸',
+ Denmark:'🇩🇰',Sweden:'🇸🇪',Wales:'🏴',Scotland:'🏴','Saudi Arabia':'🇸🇦',Iran:'🇮🇷',Qatar:'🇶🇦',Ecuador:'🇪🇨',
+ Paraguay:'🇵🇾',Algeria:'🇩🇿',Tunisia:'🇹🇳','Ivory Coast':'🇨🇮',Jordan:'🇯🇴',Uzbekistan:'🇺🇿','DR Congo':'🇨🇩',
+ 'Cape Verde':'🇨🇻',Panama:'🇵🇦',Haiti:'🇭🇹','New Zealand':'🇳🇿','South Africa':'🇿🇦',Turkey:'🇹🇷','Czech Republic':'🇨🇿',
+ 'Bosnia and Herzegovina':'🇧🇦',Iraq:'🇮🇶','Curacao':'🇨🇼'};
+// valós magasság(cm)/súly(kg) sztárokhoz (kulcs = a TheSportsDB szerinti név)
+const BIO={'Lionel Messi':[170,72],'Kylian Mbappe':[178,73],'Erling Haaland':[195,88],'Cristiano Ronaldo':[187,83],
+ 'Jude Bellingham':[186,75],'Vinicius Junior':[176,73],'Harry Kane':[188,89],'Kevin De Bruyne':[181,68],
+ 'Luka Modric':[172,66],'Pedri':[174,60],'Jamal Musiala':[184,72],'Rodri':[191,82],'Lautaro Martinez':[174,72],
+ 'Bukayo Saka':[178,70],'Phil Foden':[171,70],'Federico Valverde':[182,78],'Achraf Hakimi':[181,73],
+ 'Son Heung-min':[183,78],'Virgil van Dijk':[193,92],'Antoine Griezmann':[176,73],'Neymar':[175,68],
+ 'Mohamed Salah':[175,71],'Florian Wirtz':[177,70],'Declan Rice':[185,80],'Robert Lewandowski':[185,81],
+ 'Rafael Leao':[188,81],'Bruno Fernandes':[179,69],'Toni Kroos':[183,76],'Alexis Mac Allister':[174,72]};
+function ageFrom(d){if(!d||d==='None')return '';const b=new Date(d);const a=Math.floor((Date.now()-b)/3.15576e10);return a>0&&a<60?a:'';}
+function pcard(x,i){
+ const name=x.strPlayer||'?'; const bio=BIO[name]||[];
+ const hv=(x.strHeight&&x.strHeight!=='None')?x.strHeight:''; const wv=(x.strWeight&&x.strWeight!=='None')?x.strWeight:'';
+ const h=bio[0]?bio[0]+' cm':(hv||'—'); const w=bio[1]?bio[1]+' kg':(wv||'—');
+ const num=(x.strNumber&&x.strNumber!=='None')?'#'+x.strNumber:'';
+ const flag=NATFLAG[x.strNationality]||'🌍';
+ const photo=(x.strCutout&&x.strCutout!=='None')?x.strCutout:((x.strThumb&&x.strThumb!=='None')?x.strThumb:'');
+ const age=ageFrom(x.dateBorn);
+ return `<div class="pcard" style="animation-delay:${(i||0)*55}ms">
+   <div class="photo">${photo?`<img src="${photo}" alt="" onerror="this.style.display='none'">`:'<span style="font-size:54px;opacity:.4;align-self:center">👤</span>'}
+     <span class="flag">${flag}</span>${num?`<span class="num">${num}</span>`:''}</div>
+   <div class="body"><div class="pn">${name}</div>
+     <div class="pmeta">${x.strNationality||'—'}${x.strTeam&&x.strTeam!=='None'?' · '+x.strTeam:''}${age?' · '+age+' éves':''}</div>
+     <div class="ppos">${(x.strPosition&&x.strPosition!=='None')?x.strPosition:'—'}</div>
+     <div class="pbio"><div class="b"><div class="v">${h}</div><div class="l">MAGASSÁG</div></div>
+       <div class="b"><div class="v">${w}</div><div class="l">SÚLY</div></div></div></div></div>`;
+}
+let pt;
+document.getElementById('pSearch').addEventListener('input',e=>{
+ clearTimeout(pt); const q=e.target.value.trim(); const out=document.getElementById('pResult');
+ if(q.length<3){out.innerHTML='';return;}
+ out.innerHTML='<div class="ploading">🔎 Keresés…</div>';
+ pt=setTimeout(()=>doSearch(q,out),350);
+});
+async function doSearch(q,out){
+ try{
+  const r=await fetch(SDB+encodeURIComponent(q.replace(/ /g,'_'))); const d=await r.json();
+  let ps=(d.player||[]).filter(p=>p.strSport==='Soccer');
+  // ha üres, próbáljuk meg szóközzel is
+  if(!ps.length){const r2=await fetch(SDB+encodeURIComponent(q));const d2=await r2.json();ps=(d2.player||[]).filter(p=>p.strSport==='Soccer');}
+  ps=ps.slice(0,12);
+  out.innerHTML=ps.length?ps.map((p,i)=>pcard(p,i)).join(''):'<div class="ploading">Nincs találat 🤷 — próbálj másik nevet</div>';
+ }catch(e){out.innerHTML='<div class="ploading">⚠️ Hiba a keresésben, próbáld újra.</div>';}
+}
+const FEATURED=['Kylian Mbappe','Erling Haaland','Jude Bellingham','Vinicius Junior','Lionel Messi','Pedri','Jamal Musiala','Son Heung-min','Virgil van Dijk','Achraf Hakimi','Harry Kane','Lautaro Martinez'];
+let featLoaded=false;
+async function loadFeatured(){
+ if(featLoaded)return; featLoaded=true;
+ const box=document.getElementById('pFeatured'); box.innerHTML='<div class="ploading">⭐ Sztárok betöltése…</div>';
+ try{
+  const res=await Promise.all(FEATURED.map(n=>fetch(SDB+encodeURIComponent(n.replace(/ /g,'_'))).then(r=>r.json()).then(d=>(d.player||[]).filter(p=>p.strSport==='Soccer')[0]).catch(()=>null)));
+  const ok=res.filter(Boolean);
+  box.innerHTML=ok.length?ok.map((p,i)=>pcard(p,i)).join(''):'<div class="ploading">A sztárok most nem tölthetők be.</div>';
+ }catch(e){box.innerHTML='<div class="ploading">A sztárok most nem tölthetők be.</div>';}
+}
 </script>
 </body>
 </html>
