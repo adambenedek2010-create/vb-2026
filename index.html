@@ -666,7 +666,7 @@ const WCN=new Set(['mexico','south africa','south korea','korea republic','czech
  'sweden','tunisia','belgium','egypt','iran','new zealand','spain','cape verde','cabo verde','uruguay','saudi arabia',
  'france','norway','senegal','iraq','argentina','austria','algeria','jordan','colombia','portugal','dr congo','congo dr',
  'democratic republic of the congo','uzbekistan','england','ghana','croatia','panama']);
-function isWC(x){return WCN.has((x.strNationality||'').trim().toLowerCase());}
+function isWC(x){return x && x.strStatus!=='Retired' && WCN.has((x.strNationality||'').trim().toLowerCase());}
 
 /* ---- VB 2026 statisztikák (meccs, gól, gólpassz) a sztárokhoz ---- */
 const WCSTATS={'Lionel Messi':[3,5,2],'Kylian Mbappe':[3,4,1],'Harry Kane':[3,3,1],'Vinicius Junior':[3,3,2],
