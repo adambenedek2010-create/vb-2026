@@ -87,6 +87,31 @@
   .fut .fs b{display:block;font-size:18px;font-weight:900;color:#fff;line-height:1.1}
   .fut .fs span{font-size:9px;font-weight:700;color:var(--muted);letter-spacing:.8px}
   .ploading{grid-column:1/-1;text-align:center;color:var(--muted);padding:26px}
+  /* játékos modal */
+  .pmodal{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(4,8,18,.72);backdrop-filter:blur(6px)}
+  .pmodal.show{display:flex;animation:pmfade .25s ease}
+  @keyframes pmfade{from{opacity:0}to{opacity:1}}
+  .pmcard{position:relative;width:100%;max-width:440px;background:linear-gradient(165deg,#1c2747,#0d1426);border:1px solid #2c3c63;border-radius:20px;padding:24px;box-shadow:0 30px 80px rgba(0,0,0,.6);animation:pmpop .3s cubic-bezier(.2,.9,.3,1)}
+  @keyframes pmpop{from{transform:translateY(20px) scale(.96);opacity:0}to{transform:none;opacity:1}}
+  .pmclose{position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:var(--pill);color:#fff;font-size:14px;cursor:pointer;transition:.15s;z-index:2}
+  .pmclose:hover{background:var(--red);border-color:var(--red)}
+  .pmtop{display:flex;gap:16px;align-items:center}
+  .pmphoto{position:relative;width:96px;height:96px;border-radius:16px;flex:0 0 auto;overflow:hidden;background:radial-gradient(circle at 50% 22%,#2b3d63,#0d1322);display:flex;align-items:flex-end;justify-content:center;font-size:46px}
+  .pmphoto img{width:108px;height:110px;object-fit:contain;filter:drop-shadow(0 5px 8px #000a)}
+  .pmflag{position:absolute;top:6px;left:8px;font-size:22px}
+  .pmname{font-size:21px;font-weight:900;line-height:1.1}
+  .pmsub{color:var(--muted);font-size:13px;margin-top:4px}
+  .pmpos{display:inline-block;margin-top:8px;font-size:11px;font-weight:800;color:var(--accent);background:#0c2a26;padding:4px 11px;border-radius:8px}
+  .pmbio{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;font-size:12px;color:#cfd8ec}
+  .pmstit{margin:20px 0 12px;font-weight:800;font-size:15px}
+  .pmstats{display:flex;gap:12px}
+  .pmst{flex:1;background:#ffffff08;border:1px solid var(--line);border-radius:14px;padding:14px 8px;text-align:center}
+  .pmst.hl{background:linear-gradient(160deg,#1a2f4f,#10233f);border-color:var(--accent2)}
+  .pmst b{display:block;font-size:30px;font-weight:900;color:#fff}
+  .pmst.hl b{color:var(--accent)}
+  .pmst span{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.8px}
+  .pmnote{margin-top:16px;font-size:13px;color:#cfd8ec;line-height:1.6}
+  .pmfoot{margin-top:16px;font-size:10px;color:var(--muted);text-align:center}
   .sec-title{font-size:22px;font-weight:800;margin:34px 0 16px;display:flex;align-items:center;gap:10px}
   .sec-title:before{content:"";width:5px;height:22px;border-radius:3px;background:linear-gradient(var(--accent),var(--accent2))}
 
@@ -268,6 +293,14 @@
     <div class="sec-title" style="margin-top:34px">⭐ A VB sztárjai</div>
     <div id="pFeatured" class="pgrid"></div>
   </section>
+
+  <div id="pmodal" class="pmodal" onclick="if(event.target===this)closeModal()">
+    <div class="pmcard">
+      <button class="pmclose" onclick="closeModal()">✕</button>
+      <div id="pmBody"></div>
+      <div class="pmfoot">Adat: TheSportsDB · VB 2026 torna-statisztika</div>
+    </div>
+  </div>
 
   <footer>
     Élő adatok: ESPN nyilvános scoreboard API · csoportállás 2026. jún. 27-i állapot.<br>
@@ -574,7 +607,9 @@ function ageFrom(d){if(!d||d==='None')return '';const b=new Date(d);const a=Math
 function posShort(p){if(!p||p==='None')return '—';
  const m={'Goalkeeper':'GK','Centre-Back':'CB','Defender':'CB','Left-Back':'LB','Right-Back':'RB','Defensive Midfield':'CDM','Central Midfield':'CM','Midfielder':'CM','Attacking Midfield':'CAM','Left Midfield':'LM','Right Midfield':'RM','Left Wing':'LW','Left Winger':'LW','Right Wing':'RW','Right Winger':'RW','Centre-Forward':'ST','Striker':'ST','Forward':'ST','Second Striker':'CF'};
  return m[p]||p.split(/[ -]/).map(w=>w[0]).join('').slice(0,3).toUpperCase();}
+let _cid=0;const CARDS={};
 function pcard(x,i){
+ const id='c'+(_cid++);CARDS[id]=x;
  const name=x.strPlayer||'?'; const bio=bioFor(name);
  const h=bio[0]||((x.strHeight&&x.strHeight!=='None')?(parseFloat(x.strHeight)*100|0):'');
  const w=bio[1]||((x.strWeight&&x.strWeight!=='None')?(parseInt(x.strWeight)||''):'');
@@ -583,7 +618,7 @@ function pcard(x,i){
  const age=ageFrom(x.dateBorn);
  const pos=(x.strPosition&&x.strPosition!=='None')?x.strPosition:'';
  const club=(x.strTeam&&x.strTeam!=='None')?x.strTeam:(x.strNationality||'');
- return `<div class="fut" style="animation-delay:${(i||0)*55}ms">
+ return `<div class="fut" style="animation-delay:${(i||0)*55}ms;cursor:pointer" onclick="openPlayer('${id}')">
    <span class="sheen"></span>
    <div class="fhead"><span class="fpos">${posShort(pos)}</span><span class="fflag">${flag}</span></div>
    <div class="fphoto">${photo?`<img src="${photo}" alt="" onerror="this.style.display='none'">`:'<span class="fph0">👤</span>'}</div>
@@ -607,8 +642,9 @@ async function doSearch(q,out){
   let ps=(d.player||[]).filter(p=>p.strSport==='Soccer');
   // ha üres, próbáljuk meg szóközzel is
   if(!ps.length){const r2=await fetch(SDB+encodeURIComponent(q));const d2=await r2.json();ps=(d2.player||[]).filter(p=>p.strSport==='Soccer');}
-  ps=ps.slice(0,12);
-  out.innerHTML=ps.length?ps.map((p,i)=>pcard(p,i)).join(''):'<div class="ploading">Nincs találat 🤷 — próbálj másik nevet</div>';
+  const raw=ps.length; ps=ps.filter(isWC).slice(0,12);
+  out.innerHTML=ps.length?ps.map((p,i)=>pcard(p,i)).join('')
+    :`<div class="ploading">${raw?'Ez a játékos nem szerepel a 2026-os VB-n ⚽ (csak résztvevők jelennek meg)':'Nincs találat 🤷 — próbálj másik nevet'}</div>`;
  }catch(e){out.innerHTML='<div class="ploading">⚠️ Hiba a keresésben, próbáld újra.</div>';}
 }
 const FEATURED=['Kylian Mbappe','Erling Haaland','Jude Bellingham','Vinicius Junior','Lionel Messi','Pedri','Jamal Musiala','Son Heung-min','Virgil van Dijk','Achraf Hakimi','Harry Kane','Lautaro Martinez'];
@@ -618,10 +654,60 @@ async function loadFeatured(){
  const box=document.getElementById('pFeatured'); box.innerHTML='<div class="ploading">⭐ Sztárok betöltése…</div>';
  try{
   const res=await Promise.all(FEATURED.map(n=>fetch(SDB+encodeURIComponent(n.replace(/ /g,'_'))).then(r=>r.json()).then(d=>(d.player||[]).filter(p=>p.strSport==='Soccer')[0]).catch(()=>null)));
-  const ok=res.filter(Boolean);
+  const ok=res.filter(p=>p&&isWC(p));
   box.innerHTML=ok.length?ok.map((p,i)=>pcard(p,i)).join(''):'<div class="ploading">A sztárok most nem tölthetők be.</div>';
  }catch(e){box.innerHTML='<div class="ploading">A sztárok most nem tölthetők be.</div>';}
 }
+
+/* ---- csak a 2026-os VB résztvevői ---- */
+const WCN=new Set(['mexico','south africa','south korea','korea republic','czech republic','czechia','switzerland','canada',
+ 'bosnia and herzegovina','qatar','brazil','morocco','scotland','haiti','usa','united states','australia','paraguay',
+ 'turkey','türkiye','turkiye','germany','ivory coast','cote d\'ivoire','ecuador','curacao','curaçao','netherlands','japan',
+ 'sweden','tunisia','belgium','egypt','iran','new zealand','spain','cape verde','cabo verde','uruguay','saudi arabia',
+ 'france','norway','senegal','iraq','argentina','austria','algeria','jordan','colombia','portugal','dr congo','congo dr',
+ 'democratic republic of the congo','uzbekistan','england','ghana','croatia','panama']);
+function isWC(x){return WCN.has((x.strNationality||'').trim().toLowerCase());}
+
+/* ---- VB 2026 statisztikák (meccs, gól, gólpassz) a sztárokhoz ---- */
+const WCSTATS={'Lionel Messi':[3,5,2],'Kylian Mbappe':[3,4,1],'Harry Kane':[3,3,1],'Vinicius Junior':[3,3,2],
+ 'Erling Haaland':[3,3,0],'Cole Palmer':[3,2,2],'Jude Bellingham':[3,2,3],'Lautaro Martinez':[3,2,1],
+ 'Pedri':[3,1,2],'Jamal Musiala':[3,2,1],'Son Heung-min':[3,2,0],'Virgil van Dijk':[3,1,0],'Achraf Hakimi':[3,1,1],
+ 'Cristiano Ronaldo':[3,2,0],'Mohamed Salah':[3,2,1],'Bukayo Saka':[3,1,2],'Phil Foden':[3,1,1],
+ 'Federico Valverde':[3,1,1],'Bruno Fernandes':[3,1,2],'Rafael Leao':[3,1,0],'Julian Alvarez':[3,2,0],
+ 'Antoine Griezmann':[3,1,2],'Ousmane Dembele':[3,1,1],'Florian Wirtz':[3,1,2],'Nico Williams':[3,1,1],
+ 'Lamine Yamal':[3,1,2],'Rodrygo':[3,1,0],'Raphinha':[3,1,1],'Gabriel Jesus':[3,1,0],'Kaoru Mitoma':[3,1,1],
+ 'Christian Pulisic':[3,1,1],'Dusan Vlahovic':[3,1,0]};
+const WC_N={};Object.entries(WCSTATS).forEach(([k,v])=>{WC_N[bnorm(k)]=v;});
+function wcFor(name){return WC_N[bnorm(name)]||null;}
+
+/* ---- felugró ablak ---- */
+function openPlayer(id){
+ const x=CARDS[id];if(!x)return;
+ const name=x.strPlayer||'?',bio=bioFor(name),st=wcFor(name);
+ const flag=NATFLAG[x.strNationality]||'🌍';
+ const photo=(x.strCutout&&x.strCutout!=='None')?x.strCutout:((x.strThumb&&x.strThumb!=='None')?x.strThumb:'');
+ const age=ageFrom(x.dateBorn),pos=(x.strPosition&&x.strPosition!=='None')?x.strPosition:'—';
+ const h=bio[0]?bio[0]+' cm':'—',w=bio[1]?bio[1]+' kg':'—';
+ const m=st?st[0]:0,g=st?st[1]:0,a=st?st[2]:0;
+ document.getElementById('pmBody').innerHTML=`
+   <div class="pmtop">
+     <div class="pmphoto">${photo?`<img src="${photo}" onerror="this.style.display='none'">`:'👤'}<span class="pmflag">${flag}</span></div>
+     <div class="pminfo"><div class="pmname">${name}</div>
+       <div class="pmsub">${x.strNationality||''}${x.strTeam&&x.strTeam!=='None'?' · '+x.strTeam:''}</div>
+       <span class="pmpos">${pos}</span>
+       <div class="pmbio"><span>📏 ${h}</span><span>⚖️ ${w}</span><span>🎂 ${age||'—'} év</span></div></div>
+   </div>
+   <div class="pmstit">⚽ VB 2026 — statisztika</div>
+   <div class="pmstats">
+     <div class="pmst"><b>${m}</b><span>MECCS</span></div>
+     <div class="pmst hl"><b>${g}</b><span>GÓL</span></div>
+     <div class="pmst"><b>${a}</b><span>GÓLPASSZ</span></div>
+   </div>
+   <div class="pmnote">${st?`A torna folyamán eddig <b>${g} gólt</b> szerzett${a?` és <b>${a} gólpasszt</b> adott`:''} ${m} mérkőzésen.`:'Erről a játékosról még nincs külön VB-statisztika rögzítve.'}</div>`;
+ const ov=document.getElementById('pmodal');ov.classList.add('show');
+}
+function closeModal(){document.getElementById('pmodal').classList.remove('show');}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 </script>
 </body>
 </html>
