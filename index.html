@@ -310,6 +310,26 @@
 </div>
 
 <script>
+/* ---------- MAGYAR FORDÍTÁSOK (ország, pozíció) ---------- */
+const NAT_HU={Argentina:'Argentína',France:'Franciaország',England:'Anglia',Brazil:'Brazília',Spain:'Spanyolország',
+ Germany:'Németország',Portugal:'Portugália',Netherlands:'Hollandia',Croatia:'Horvátország',Belgium:'Belgium',
+ Norway:'Norvégia',Morocco:'Marokkó','South Korea':'Dél-Korea','Korea Republic':'Dél-Korea',Egypt:'Egyiptom',
+ Uruguay:'Uruguay',Japan:'Japán',USA:'USA','United States':'USA',Mexico:'Mexikó',Canada:'Kanada',Switzerland:'Svájc',
+ Italy:'Olaszország',Senegal:'Szenegál',Colombia:'Kolumbia',Austria:'Ausztria',Australia:'Ausztrália',Poland:'Lengyelország',
+ Nigeria:'Nigéria',Ghana:'Ghána',Serbia:'Szerbia',Denmark:'Dánia',Sweden:'Svédország','Saudi Arabia':'Szaúd-Arábia',
+ Iran:'Irán',Qatar:'Katar',Ecuador:'Ecuador',Paraguay:'Paraguay',Algeria:'Algéria',Tunisia:'Tunézia',
+ 'Ivory Coast':'Elefántcsontpart',Jordan:'Jordánia',Uzbekistan:'Üzbegisztán','DR Congo':'Kongói DK','Congo DR':'Kongói DK',
+ 'Cape Verde':'Zöld-foki-szk.',Panama:'Panama',Haiti:'Haiti','New Zealand':'Új-Zéland','South Africa':'Dél-Afrika',
+ Turkey:'Törökország','Czech Republic':'Csehország','Bosnia and Herzegovina':'Bosznia-Hercegovina',Iraq:'Irak',
+ Curacao:'Curaçao',Scotland:'Skócia',Wales:'Wales'};
+function natHu(n){return NAT_HU[n]||n||'';}
+const POS_HU={'Goalkeeper':'Kapus','Centre-Back':'Belső védő','Defender':'Védő','Left-Back':'Balhátvéd','Right-Back':'Jobbhátvéd',
+ 'Defensive Midfield':'Védekező középpályás','Central Midfield':'Középpályás','Midfielder':'Középpályás',
+ 'Attacking Midfield':'Támadó középpályás','Left Midfield':'Bal középpályás','Right Midfield':'Jobb középpályás',
+ 'Left Wing':'Bal szélső','Left Winger':'Bal szélső','Right Wing':'Jobb szélső','Right Winger':'Jobb szélső',
+ 'Centre-Forward':'Középcsatár','Striker':'Csatár','Forward':'Csatár','Second Striker':'Második csatár'};
+function posHu(p){return POS_HU[p]||p||'—';}
+
 /* ---------- STATIC DATA ---------- */
 const groups = {
   A:{status:"done", teams:[["Mexikó",3,3,0,0,9],["Dél-Afrika",3,1,1,1,4],["Dél-Korea",3,1,0,2,3],["Csehország",3,0,1,2,1]]},
@@ -496,7 +516,7 @@ async function loadLive(){
 function teamRow(t){
   const logo=t.team.logo||'';
   return `<div class="lteam"><img src="${logo}" alt="" onerror="this.style.display='none'">
-    <span class="nm">${t.team.displayName}</span><span class="sc">${t.score??''}</span></div>`;
+    <span class="nm">${natHu(t.team.displayName)}</span><span class="sc">${t.score??''}</span></div>`;
 }
 function renderLive(evs){
   const grid=document.getElementById('liveGrid');
@@ -605,8 +625,11 @@ Object.entries(BIO).forEach(([k,v])=>{const n=bnorm(k);BIO_N[n]=v;const ln=n.spl
 function bioFor(name){const n=bnorm(name);if(BIO_N[n])return BIO_N[n];const ln=n.split(' ').slice(-1)[0];return BIO_LAST[ln]||[];}
 function ageFrom(d){if(!d||d==='None')return '';const b=new Date(d);const a=Math.floor((Date.now()-b)/3.15576e10);return a>0&&a<60?a:'';}
 function posShort(p){if(!p||p==='None')return '—';
- const m={'Goalkeeper':'GK','Centre-Back':'CB','Defender':'CB','Left-Back':'LB','Right-Back':'RB','Defensive Midfield':'CDM','Central Midfield':'CM','Midfielder':'CM','Attacking Midfield':'CAM','Left Midfield':'LM','Right Midfield':'RM','Left Wing':'LW','Left Winger':'LW','Right Wing':'RW','Right Winger':'RW','Centre-Forward':'ST','Striker':'ST','Forward':'ST','Second Striker':'CF'};
- return m[p]||p.split(/[ -]/).map(w=>w[0]).join('').slice(0,3).toUpperCase();}
+ const f=posHu(p);
+ const m={'Kapus':'KAP','Belső védő':'VÉD','Védő':'VÉD','Balhátvéd':'VÉD','Jobbhátvéd':'VÉD',
+  'Védekező középpályás':'KÖZÉP','Középpályás':'KÖZÉP','Támadó középpályás':'KÖZÉP','Bal középpályás':'KÖZÉP','Jobb középpályás':'KÖZÉP',
+  'Bal szélső':'SZÉLSŐ','Jobb szélső':'SZÉLSŐ','Középcsatár':'CSATÁR','Csatár':'CSATÁR','Második csatár':'CSATÁR'};
+ return m[f]||'—';}
 let _cid=0;const CARDS={};
 function pcard(x,i){
  const id='c'+(_cid++);CARDS[id]=x;
@@ -617,7 +640,7 @@ function pcard(x,i){
  const photo=(x.strCutout&&x.strCutout!=='None')?x.strCutout:((x.strThumb&&x.strThumb!=='None')?x.strThumb:'');
  const age=ageFrom(x.dateBorn);
  const pos=(x.strPosition&&x.strPosition!=='None')?x.strPosition:'';
- const club=(x.strTeam&&x.strTeam!=='None')?x.strTeam:(x.strNationality||'');
+ const club=(x.strTeam&&x.strTeam!=='None')?x.strTeam:natHu(x.strNationality);
  return `<div class="fut" style="animation-delay:${(i||0)*55}ms;cursor:pointer" onclick="openPlayer('${id}')">
    <span class="sheen"></span>
    <div class="fhead"><span class="fpos">${posShort(pos)}</span><span class="fflag">${flag}</span></div>
@@ -666,7 +689,8 @@ const WCN=new Set(['mexico','south africa','south korea','korea republic','czech
  'sweden','tunisia','belgium','egypt','iran','new zealand','spain','cape verde','cabo verde','uruguay','saudi arabia',
  'france','norway','senegal','iraq','argentina','austria','algeria','jordan','colombia','portugal','dr congo','congo dr',
  'democratic republic of the congo','uzbekistan','england','ghana','croatia','panama']);
-function isWC(x){return x && x.strStatus!=='Retired' && WCN.has((x.strNationality||'').trim().toLowerCase());}
+const EXCLUDE=new Set(['pedrinho']); // kézi kizárás: akik nincsenek a VB-keretben
+function isWC(x){return x && x.strStatus!=='Retired' && !EXCLUDE.has(bnorm(x.strPlayer||'')) && WCN.has((x.strNationality||'').trim().toLowerCase());}
 
 /* ---- VB 2026 statisztikák (meccs, gól, gólpassz) a sztárokhoz ---- */
 const WCSTATS={'Lionel Messi':[3,5,2],'Kylian Mbappe':[3,4,1],'Harry Kane':[3,3,1],'Vinicius Junior':[3,3,2],
@@ -686,15 +710,15 @@ function openPlayer(id){
  const name=x.strPlayer||'?',bio=bioFor(name),st=wcFor(name);
  const flag=NATFLAG[x.strNationality]||'🌍';
  const photo=(x.strCutout&&x.strCutout!=='None')?x.strCutout:((x.strThumb&&x.strThumb!=='None')?x.strThumb:'');
- const age=ageFrom(x.dateBorn),pos=(x.strPosition&&x.strPosition!=='None')?x.strPosition:'—';
+ const age=ageFrom(x.dateBorn),pos=(x.strPosition&&x.strPosition!=='None')?x.strPosition:'';
  const h=bio[0]?bio[0]+' cm':'—',w=bio[1]?bio[1]+' kg':'—';
  const m=st?st[0]:0,g=st?st[1]:0,a=st?st[2]:0;
  document.getElementById('pmBody').innerHTML=`
    <div class="pmtop">
      <div class="pmphoto">${photo?`<img src="${photo}" onerror="this.style.display='none'">`:'👤'}<span class="pmflag">${flag}</span></div>
      <div class="pminfo"><div class="pmname">${name}</div>
-       <div class="pmsub">${x.strNationality||''}${x.strTeam&&x.strTeam!=='None'?' · '+x.strTeam:''}</div>
-       <span class="pmpos">${pos}</span>
+       <div class="pmsub">${natHu(x.strNationality)}${x.strTeam&&x.strTeam!=='None'?' · '+x.strTeam:''}</div>
+       <span class="pmpos">${posHu(pos)}</span>
        <div class="pmbio"><span>📏 ${h}</span><span>⚖️ ${w}</span><span>🎂 ${age||'—'} év</span></div></div>
    </div>
    <div class="pmstit">⚽ VB 2026 — statisztika</div>
