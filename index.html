@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VB 2026 — Élő áttekintő</title>
+<style>
+  :root{
+    --bg:#0a0e1a; --card:#131a2e; --card2:#1a2238; --line:#26304d;
+    --txt:#e8edf7; --muted:#8a96b3; --accent:#00d09c; --accent2:#3b82f6;
+    --gold:#ffd24a; --green:#16c784; --red:#ea3943; --pill:#222c47;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:
+     radial-gradient(1200px 600px at 80% -10%,#13224a 0,transparent 60%),
+     radial-gradient(900px 500px at -10% 10%,#1a1140 0,transparent 55%),var(--bg);
+    color:var(--txt);min-height:100vh;padding-bottom:60px}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 18px}
+  header{padding:42px 0 26px;text-align:center}
+  .badge{display:inline-block;background:linear-gradient(90deg,var(--accent),var(--accent2));
+    color:#04121f;font-weight:800;letter-spacing:.5px;padding:6px 16px;border-radius:40px;font-size:13px;margin-bottom:16px}
+  h1{font-size:clamp(30px,5vw,52px);font-weight:900;letter-spacing:-1px;
+    background:linear-gradient(90deg,#fff,#9fc6ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);margin-top:10px;font-size:16px}
+  .live{display:inline-flex;align-items:center;gap:7px;color:var(--green);font-weight:700;font-size:14px;margin-top:14px}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 0 0 rgba(22,199,132,.6);animation:p 1.6s infinite}
+  @keyframes p{0%{box-shadow:0 0 0 0 rgba(22,199,132,.5)}70%{box-shadow:0 0 0 10px rgba(22,199,132,0)}100%{box-shadow:0 0 0 0 rgba(22,199,132,0)}}
+
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin:30px 0 10px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 16px;text-align:center}
+  .stat .n{font-size:30px;font-weight:900;color:#fff}
+  .stat .l{color:var(--muted);font-size:13px;margin-top:4px}
+  .stat .n.gold{color:var(--gold)}
+
+  .tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:34px 0 8px}
+  .tab{background:var(--card);border:1px solid var(--line);color:var(--muted);padding:10px 20px;border-radius:40px;cursor:pointer;font-weight:700;font-size:14px;transition:.18s}
+  .tab:hover{color:#fff;border-color:var(--accent2)}
+  .tab.active{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#04121f;border-color:transparent}
+  .tab.livetab.active{background:linear-gradient(90deg,#ff4d4d,#ea3943);color:#fff}
+
+  .sec-title{font-size:22px;font-weight:800;margin:34px 0 16px;display:flex;align-items:center;gap:10px}
+  .sec-title:before{content:"";width:5px;height:22px;border-radius:3px;background:linear-gradient(var(--accent),var(--accent2))}
+
+  .groups{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:18px}
+  .group{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+  .group h3{padding:14px 18px;font-size:16px;background:var(--card2);display:flex;justify-content:space-between;align-items:center}
+  .group h3 .tag{font-size:11px;font-weight:700;color:var(--muted);background:var(--pill);padding:3px 9px;border-radius:20px}
+  .group h3 .tag.live{color:var(--green)}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{padding:10px 10px;text-align:center}
+  th{color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+  td.team{text-align:left;font-weight:600}
+  tbody tr{border-top:1px solid var(--line)}
+  .pos{display:inline-flex;width:20px;height:20px;border-radius:6px;font-size:11px;font-weight:800;align-items:center;justify-content:center;margin-right:9px;background:var(--pill);color:var(--muted)}
+  tr.q1 .pos{background:var(--green);color:#04121f}
+  tr.q2 .pos{background:var(--accent2);color:#fff}
+  td.pts{font-weight:900;color:#fff}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;color:var(--muted);font-size:13px;margin:14px 2px}
+  .legend span{display:inline-flex;align-items:center;gap:7px}
+  .sw{width:13px;height:13px;border-radius:4px;display:inline-block}
+
+  .matches{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+  .match{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+  .match .meta{color:var(--muted);font-size:12px;margin-bottom:9px;display:flex;justify-content:space-between}
+  .match .row{display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:15px;padding:3px 0}
+  .match .sc{font-weight:900;font-size:16px;color:var(--gold);min-width:26px;text-align:right}
+  .match.up .sc{color:var(--accent2)}
+  .match .vs{color:var(--muted);font-size:13px}
+
+  /* LIVE */
+  #liveStatus{color:var(--muted);font-size:13px;margin:6px 2px 18px;display:flex;align-items:center;gap:8px}
+  .lmatch{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px;position:relative;overflow:hidden}
+  .lmatch.islive{border-color:#ea3943;box-shadow:0 0 0 1px rgba(234,57,67,.4),0 8px 30px rgba(234,57,67,.12)}
+  .lmatch .lhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+  .lbadge{font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px;letter-spacing:.5px}
+  .lbadge.live{background:#ea3943;color:#fff;display:inline-flex;align-items:center;gap:6px}
+  .lbadge.live:before{content:"";width:7px;height:7px;border-radius:50%;background:#fff;animation:p 1.4s infinite}
+  .lbadge.pre{background:var(--pill);color:var(--muted)}
+  .lbadge.post{background:#2a3550;color:#9fb0d6}
+  .lbadge .min{font-weight:900}
+  .lcomp{color:var(--muted);font-size:12px}
+  .lteam{display:flex;align-items:center;gap:11px;padding:7px 0;font-size:17px;font-weight:700}
+  .lteam img{width:30px;height:22px;object-fit:contain;border-radius:3px;background:#fff1}
+  .lteam .nm{flex:1}
+  .lteam .sc{font-size:24px;font-weight:900;color:#fff;min-width:30px;text-align:right}
+  .lfoot{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+  .ltv{color:var(--muted);font-size:12px}
+  .lwatch{background:#ea3943;color:#fff;text-decoration:none;font-weight:800;font-size:13px;padding:8px 16px;border-radius:30px;display:inline-flex;align-items:center;gap:7px;transition:.15s}
+  .lwatch:hover{filter:brightness(1.12)}
+  .lwatch.pre{background:var(--pill);color:var(--muted);pointer-events:none}
+
+  /* watch-live hero button after scorers */
+  .watchhero{margin-top:26px;background:linear-gradient(135deg,#1a1030,#2a1020);border:1px solid #4a2030;border-radius:20px;padding:26px;text-align:center}
+  .watchhero h4{font-size:18px;margin-bottom:6px}
+  .watchhero p{color:var(--muted);font-size:14px;margin-bottom:18px}
+  .bigwatch{display:inline-flex;align-items:center;gap:12px;background:#ea3943;color:#fff;text-decoration:none;font-weight:900;font-size:18px;padding:16px 34px;border-radius:50px;box-shadow:0 10px 30px rgba(234,57,67,.35);transition:.18s}
+  .bigwatch:hover{transform:translateY(-2px);box-shadow:0 14px 40px rgba(234,57,67,.5)}
+  .bigwatch.off{background:var(--pill);color:var(--muted);box-shadow:none;pointer-events:none}
+  .bigwatch .pulse{width:11px;height:11px;border-radius:50%;background:#fff;animation:p 1.3s infinite}
+  .whsub{color:var(--muted);font-size:12px;margin-top:12px}
+
+  /* BRACKET */
+  .bracketwrap{overflow-x:auto;padding:10px 4px 30px;-webkit-overflow-scrolling:touch}
+  .bracket{display:flex;gap:22px;min-width:1080px;position:relative;align-items:stretch}
+  .bracket svg.conn{position:absolute;left:0;top:0;pointer-events:none;z-index:0;overflow:visible}
+  .round{display:flex;flex-direction:column;flex:1;min-width:170px;max-width:210px;position:relative;z-index:1}
+  .rhead{text-align:center;margin-bottom:12px}
+  .rhead .rn{font-weight:800;font-size:14px;background:linear-gradient(90deg,#fff,#9fc6ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .rhead .rd{color:var(--muted);font-size:10px;margin-top:2px;letter-spacing:.3px}
+  .rmatches{flex:1;display:flex;flex-direction:column;justify-content:space-around}
+  .bwrap{display:flex;flex-direction:column;align-items:center}
+  .bmatch{width:168px;background:linear-gradient(160deg,var(--card2),#0f1526);border:1.5px solid var(--line);
+    border-radius:50%/50%;padding:9px 22px;text-align:center;transition:.18s}
+  .bmatch:hover{border-color:var(--accent2);transform:translateY(-1px)}
+  .bmatch.final{border-color:var(--gold);box-shadow:0 0 26px rgba(255,210,74,.20)}
+  .bmatch.decided{border-color:#2f5b54}
+  .brow .tn{font-size:12.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;min-height:17px;line-height:17px}
+  .brow .tn.empty{color:transparent}
+  .bline{height:1px;background:var(--line);margin:5px 14px}
+  .bcap{font-size:9.5px;color:var(--muted);margin-top:5px;font-weight:600}
+  .bcap .mn{color:var(--accent2);font-weight:800}
+  .bmatch.final .tn{color:var(--gold)}
+  .scorers{display:grid;gap:10px;max-width:560px}
+  .scorer{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px}
+  .scorer .rk{font-weight:900;color:var(--gold);width:26px;text-align:center}
+  .scorer .nm{font-weight:700;flex:1}
+  .scorer .ct{color:var(--muted);font-size:13px}
+  .scorer .g{font-weight:900;color:#fff;background:var(--pill);padding:4px 12px;border-radius:20px}
+
+  footer{text-align:center;color:var(--muted);font-size:13px;margin-top:46px;line-height:1.7}
+  footer a{color:var(--accent)}
+  .hidden{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">🇺🇸 🇨🇦 🇲🇽  CANADA · MEXICO · USA</div>
+    <h1>Labdarúgó-VB 2026</h1>
+    <p class="sub">Élő áttekintő — csoportállások, eredmények, statisztikák · 2026. jún. 11 – júl. 19</p>
+    <div class="live"><span class="dot"></span> ÉLŐ · utolsó frissítés: <span id="upd"></span></div>
+  </header>
+
+  <div class="stats">
+    <div class="stat"><div class="n">48</div><div class="l">Csapat</div></div>
+    <div class="stat"><div class="n">12</div><div class="l">Csoport</div></div>
+    <div class="stat"><div class="n">104</div><div class="l">Mérkőzés</div></div>
+    <div class="stat"><div class="n">16</div><div class="l">Stadion</div></div>
+    <div class="stat"><div class="n gold">⚽ 5</div><div class="l">Gólkirály (Messi)</div></div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab livetab active" data-t="livesec">🔴 ÉLŐ</div>
+    <div class="tab" data-t="groups">Csoportállás</div>
+    <div class="tab" data-t="results">Eredmények</div>
+    <div class="tab" data-t="knockout">Egyenes kieséses</div>
+    <div class="tab" data-t="bracket">🏆 Tabló</div>
+    <div class="tab" data-t="scorers">Góllövőlista</div>
+  </div>
+
+  <!-- LIVE -->
+  <section id="livesec">
+    <div class="sec-title">Mai mérkőzések — élő</div>
+    <div id="liveStatus"><span class="dot"></span> Adatok betöltése…</div>
+    <div class="matches" id="liveGrid"></div>
+  </section>
+
+  <!-- GROUPS -->
+  <section id="groups" class="hidden">
+    <div class="legend">
+      <span><i class="sw" style="background:var(--green)"></i> Csoportgyőztes (továbbjutott)</span>
+      <span><i class="sw" style="background:var(--accent2)"></i> 2. hely (továbbjutott)</span>
+      <span><i class="sw" style="background:var(--pill)"></i> 3. hely — a 8 legjobb is továbbjut</span>
+    </div>
+    <div class="groups" id="groupGrid"></div>
+  </section>
+
+  <!-- RESULTS -->
+  <section id="results" class="hidden">
+    <div class="sec-title">Lejátszott mérkőzések (válogatás)</div>
+    <div class="matches" id="resGrid"></div>
+  </section>
+
+  <!-- KNOCKOUT -->
+  <section id="knockout" class="hidden">
+    <div class="sec-title">Round of 32 — közelgő mérkőzések</div>
+    <div class="matches" id="koGrid"></div>
+  </section>
+
+  <!-- BRACKET -->
+  <section id="bracket" class="hidden">
+    <div class="sec-title">Egyenes kieséses tabló — Round of 32 → Döntő</div>
+    <p style="color:var(--muted);font-size:13px;margin:-6px 2px 16px">Görgess oldalra ⟶ a teljes tablóért. A nevek automatikusan kitöltődnek, ahogy eldőlnek a meccsek. (Forrás: hivatalos FIFA-sorsolás)</p>
+    <div class="bracketwrap"><div class="bracket" id="bracketGrid"></div></div>
+  </section>
+
+  <!-- SCORERS -->
+  <section id="scorers" class="hidden">
+    <div class="sec-title">Góllövőlista</div>
+    <div class="scorers" id="scGrid"></div>
+
+    <div class="watchhero">
+      <h4>📺 M4 Sport — élő adás</h4>
+      <p>Egy kattintással megnyílik az M4 Sport élő közvetítése külön ablakban, amit teljes képernyőre tehetsz.</p>
+      <a id="bigWatch" class="bigwatch" href="#" onclick="openM4();return false;"><span class="pulse"></span> M4 Sport élő megnyitása</a>
+      <div class="whsub" id="whSub">Az M4 Sport 0–24 él. Külön ablakban nyílik — a lejátszóban vagy F11-gyel tehető teljes képernyőre.</div>
+    </div>
+  </section>
+
+  <footer>
+    Élő adatok: ESPN nyilvános scoreboard API · csoportállás 2026. jún. 27-i állapot.<br>
+    A J, K és L csoport utolsó fordulója még zajlik — az állás változhat.<br>
+    Készítette: Marveen 🤖
+  </footer>
+</div>
+
+<script>
+/* ---------- STATIC DATA ---------- */
+const groups = {
+  A:{status:"done", teams:[["Mexikó",3,3,0,0,9],["Dél-Afrika",3,1,1,1,4],["Dél-Korea",3,1,0,2,3],["Csehország",3,0,1,2,1]]},
+  B:{status:"done", teams:[["Svájc",3,2,1,0,7],["Kanada",3,1,1,1,4],["Bosznia-Hercegovina",3,1,1,1,4],["Katar",3,0,1,2,1]]},
+  C:{status:"done", teams:[["Brazília",3,2,1,0,7],["Marokkó",3,2,1,0,7],["Skócia",3,1,0,2,3],["Haiti",3,0,0,3,0]]},
+  D:{status:"done", teams:[["USA",3,2,0,1,6],["Ausztrália",3,1,1,1,4],["Paraguay",3,1,1,1,4],["Törökország",3,1,0,2,3]]},
+  E:{status:"done", teams:[["Németország",3,2,0,1,6],["Elefántcsontpart",3,2,0,1,6],["Ecuador",3,1,1,1,4],["Curaçao",3,0,1,2,1]]},
+  F:{status:"done", teams:[["Hollandia",3,2,1,0,7],["Japán",3,1,2,0,5],["Svédország",3,1,1,1,4],["Tunézia",3,0,0,3,0]]},
+  G:{status:"done", teams:[["Belgium",3,1,2,0,5],["Egyiptom",3,1,2,0,5],["Irán",3,1,0,2,3],["Új-Zéland",3,0,1,2,1]]},
+  H:{status:"done", teams:[["Spanyolország",3,2,1,0,7],["Zöld-foki-szk.",3,0,3,0,3],["Uruguay",3,0,2,1,2],["Szaúd-Arábia",3,0,2,1,2]]},
+  I:{status:"done", teams:[["Franciaország",3,3,0,0,9],["Norvégia",3,2,0,1,6],["Szenegál",3,1,0,2,3],["Irak",3,0,0,3,0]]},
+  J:{status:"live", teams:[["Argentína",2,2,0,0,6],["Ausztria",2,1,0,1,3],["Algéria",2,1,0,1,3],["Jordánia",2,0,0,2,0]]},
+  K:{status:"live", teams:[["Kolumbia",2,2,0,0,6],["Portugália",2,1,1,0,4],["Kongói DK",2,0,1,1,1],["Üzbegisztán",2,0,0,2,0]]},
+  L:{status:"live", teams:[["Anglia",2,1,1,0,4],["Ghána",2,1,1,0,4],["Horvátország",2,1,0,1,3],["Panama",2,0,0,2,0]]},
+};
+const results = [
+  ["A csoport","Mexikó","Dél-Korea","2","1"],["B csoport","Svájc","Kanada","1","0"],
+  ["C csoport","Brazília","Marokkó","1","1"],["D csoport","USA","Törökország","2","0"],
+  ["E csoport","Németország","Elefántcsontpart","2","1"],["F csoport","Hollandia","Japán","2","2"],
+  ["H csoport","Spanyolország","Zöld-foki-szk.","1","1"],["I csoport","Franciaország","Norvégia","3","1"],
+  ["J csoport","Argentína","Algéria","2","0"],["K csoport","Kolumbia","Portugália","1","0"],
+];
+const knockout = [
+  ["Round of 32 · júl. 1.","USA","Bosznia-Hercegovina","Santa Clara, CA"],
+  ["Round of 32 · júl. 2.","Kanada","Dél-Afrika","Los Angeles, CA"],
+  ["Round of 32 · júl. 2.","Mexikó","3. helyezett","Mexikóváros"],
+  ["Round of 32 · júl. 3.","Franciaország","3. helyezett","Atlanta, GA"],
+  ["Round of 32 · júl. 3.","Spanyolország","2. helyezett","Arlington, TX"],
+  ["Round of 32 · júl. 4.","Brazília","2. helyezett","Miami, FL"],
+];
+const scorers = [
+  ["Lionel Messi","Argentína",5],["Kylian Mbappé","Franciaország",4],["Harry Kane","Anglia",3],
+  ["Vinícius Júnior","Brazília",3],["Erling Haaland","Norvégia",3],["Cole Palmer","Anglia",2],
+];
+
+/* ---------- RENDER STATIC ---------- */
+const gg=document.getElementById('groupGrid');
+for(const [k,g] of Object.entries(groups)){
+  const live=g.status==='live';
+  const rows=g.teams.map((t,i)=>{
+    const cls=i===0?'q1':i===1?'q2':'';
+    return `<tr class="${cls}"><td class="team"><span class="pos">${i+1}</span>${t[0]}</td>
+      <td>${t[1]}</td><td>${t[2]}</td><td>${t[3]}</td><td>${t[4]}</td><td class="pts">${t[5]}</td></tr>`;
+  }).join('');
+  gg.insertAdjacentHTML('beforeend',`<div class="group">
+    <h3>${k} csoport <span class="tag ${live?'live':''}">${live?'● ZAJLIK':'Lezárt'}</span></h3>
+    <table><thead><tr><th style="text-align:left;padding-left:18px">Csapat</th><th>LM</th><th>Gy</th><th>D</th><th>V</th><th>P</th></tr></thead>
+    <tbody>${rows}</tbody></table></div>`);
+}
+const rg=document.getElementById('resGrid');
+results.forEach(m=>rg.insertAdjacentHTML('beforeend',`<div class="match">
+  <div class="meta"><span>${m[0]}</span><span>Vége</span></div>
+  <div class="row"><span>${m[1]}</span><span class="sc">${m[3]}</span></div>
+  <div class="row"><span>${m[2]}</span><span class="sc">${m[4]}</span></div></div>`));
+const kg=document.getElementById('koGrid');
+knockout.forEach(m=>kg.insertAdjacentHTML('beforeend',`<div class="match up">
+  <div class="meta"><span>${m[0]}</span><span>📍 ${m[3]}</span></div>
+  <div class="row"><span>${m[1]}</span><span class="vs">vs</span></div>
+  <div class="row"><span>${m[2]}</span><span class="sc">—</span></div></div>`));
+const sg=document.getElementById('scGrid');
+scorers.forEach((s,i)=>sg.insertAdjacentHTML('beforeend',`<div class="scorer">
+  <div class="rk">${i+1}</div><div class="nm">${s[0]}</div><div class="ct">${s[1]}</div><div class="g">⚽ ${s[2]}</div></div>`));
+
+/* ---------- BRACKET (hivatalos FIFA tabló) ---------- */
+// t:[a,b]; null = még nem dőlt el → üres. Vizuális sorrend: a párok egymás alatt.
+const rounds=[
+  {name:"Round of 32", date:"jún. 28 – júl. 3", final:false, matches:[
+    {n:74,t:["Németország","Paraguay"],d:"jún. 29"},
+    {n:77,t:["Franciaország","Svédország"],d:"jún. 30"},
+    {n:73,t:["Dél-Afrika","Kanada"],d:"jún. 28"},
+    {n:75,t:["Hollandia","Marokkó"],d:"jún. 29"},
+    {n:83,t:[null,null],d:"júl. 2"},
+    {n:84,t:["Spanyolország",null],d:"júl. 2"},
+    {n:81,t:["USA","Bosznia"],d:"júl. 1"},
+    {n:82,t:["Belgium",null],d:"júl. 1"},
+    {n:76,t:["Brazília","Japán"],d:"jún. 29"},
+    {n:78,t:["Elefántcsontpart","Norvégia"],d:"jún. 30"},
+    {n:79,t:["Mexikó",null],d:"jún. 30"},
+    {n:80,t:[null,null],d:"júl. 1"},
+    {n:86,t:["Argentína","Zöld-foki-szk."],d:"júl. 3"},
+    {n:88,t:["Ausztrália","Egyiptom"],d:"júl. 3"},
+    {n:85,t:["Svájc",null],d:"júl. 2"},
+    {n:87,t:[null,null],d:"júl. 3"},
+  ]},
+  {name:"Nyolcaddöntő", date:"júl. 4 – 7", final:false, matches:[
+    {n:89,t:[null,null],d:"júl. 4"},{n:90,t:[null,null],d:"júl. 4"},
+    {n:93,t:[null,null],d:"júl. 6"},{n:94,t:[null,null],d:"júl. 6"},
+    {n:91,t:[null,null],d:"júl. 5"},{n:92,t:[null,null],d:"júl. 5"},
+    {n:95,t:[null,null],d:"júl. 7"},{n:96,t:[null,null],d:"júl. 7"},
+  ]},
+  {name:"Negyeddöntő", date:"júl. 9 – 11", final:false, matches:[
+    {n:97,t:[null,null],d:"júl. 9"},{n:98,t:[null,null],d:"júl. 10"},
+    {n:99,t:[null,null],d:"júl. 11"},{n:100,t:[null,null],d:"júl. 11"},
+  ]},
+  {name:"Elődöntő", date:"júl. 14 – 15", final:false, matches:[
+    {n:101,t:[null,null],d:"júl. 14"},{n:102,t:[null,null],d:"júl. 15"},
+  ]},
+  {name:"🏆 Döntő", date:"júl. 19 · East Rutherford", final:true, matches:[
+    {n:104,t:[null,null],d:"júl. 19"},
+  ]},
+];
+// gyermek → szülő (melyik meccs győztese hová kerül)
+const feeds=[[74,89],[77,89],[73,90],[75,90],[83,93],[84,93],[81,94],[82,94],[76,91],[78,91],
+ [79,92],[80,92],[86,95],[88,95],[85,96],[87,96],[89,97],[90,97],[93,98],[94,98],[91,99],[92,99],
+ [95,100],[96,100],[97,101],[98,101],[99,102],[100,102],[101,104],[102,104]];
+
+function teamRowB(name){
+  const empty=!name;
+  return `<div class="brow"><span class="tn ${empty?'empty':''}">${name||'&nbsp;'}</span></div>`;
+}
+function renderBracket(){
+  const g=document.getElementById('bracketGrid');
+  g.innerHTML='<svg class="conn"></svg>'+rounds.map(r=>`
+    <div class="round"><div class="rhead"><div class="rn">${r.name}</div><div class="rd">${r.date}</div></div>
+    <div class="rmatches">${r.matches.map(m=>{
+      const decided=m.t[0]&&m.t[1];
+      return `<div class="bwrap">
+        <div class="bmatch ${r.final?'final':''} ${decided?'decided':''}" id="m-${m.n}">
+          ${teamRowB(m.t[0])}<div class="bline"></div>${teamRowB(m.t[1])}
+        </div><div class="bcap">${m.d}</div></div>`;
+    }).join('')}</div></div>`).join('');
+}
+function drawConnectors(){
+  const bracket=document.getElementById('bracketGrid');
+  const svg=bracket.querySelector('svg.conn');
+  if(!svg||!bracket.offsetWidth) return;
+  const W=bracket.scrollWidth,H=bracket.scrollHeight;
+  svg.setAttribute('width',W);svg.setAttribute('height',H);
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  const br=bracket.getBoundingClientRect();
+  const pt=(id,side)=>{const el=document.getElementById('m-'+id);if(!el)return null;
+    const r=el.getBoundingClientRect();
+    return {x:(side==='r'?r.right:r.left)-br.left+bracket.scrollLeft,
+            y:r.top+r.height/2-br.top+bracket.scrollTop};};
+  let paths='';
+  feeds.forEach(([c,p])=>{
+    const a=pt(c,'r'),b=pt(p,'l');if(!a||!b)return;
+    const mx=a.x+(b.x-a.x)*0.5; // straight right-angle connector
+    paths+=`<path d="M ${a.x} ${a.y} H ${mx} V ${b.y} H ${b.x}" fill="none" stroke="#4a82d6" stroke-width="2" stroke-opacity=".5" stroke-linejoin="round"/>`;
+  });
+  svg.innerHTML=paths;
+}
+renderBracket();
+
+/* ---------- TABS ---------- */
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  ['livesec','groups','results','knockout','bracket','scorers'].forEach(s=>document.getElementById(s).classList.add('hidden'));
+  document.getElementById(t.dataset.t).classList.remove('hidden');
+  if(t.dataset.t==='bracket') setTimeout(drawConnectors,40);
+});
+window.addEventListener('resize',()=>{ if(!document.getElementById('bracket').classList.contains('hidden')) drawConnectors(); });
+
+/* ---------- LIVE DATA (ESPN public API) ---------- */
+const API="https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard";
+function tnow(){return new Date().toLocaleTimeString('hu-HU',{hour:'2-digit',minute:'2-digit',second:'2-digit'});}
+
+async function loadLive(){
+  const status=document.getElementById('liveStatus');
+  try{
+    const r=await fetch(API,{cache:"no-store"});
+    const d=await r.json();
+    const evs=(d.events||[]).map(e=>{
+      const c=e.competitions[0], st=c.status, t=st.type.state;
+      const home=c.competitors.find(x=>x.homeAway==='home')||c.competitors[0];
+      const away=c.competitors.find(x=>x.homeAway==='away')||c.competitors[1];
+      const link=(e.links&&e.links[0]&&e.links[0].href)||"https://www.espn.com/soccer/scoreboard/_/league/fifa.world";
+      const tv=(c.broadcasts&&c.broadcasts[0]&&c.broadcasts[0].names)?c.broadcasts[0].names.join(', '):'';
+      const ko=new Date(e.date).toLocaleTimeString('hu-HU',{hour:'2-digit',minute:'2-digit'});
+      return {state:t, detail:st.type.shortDetail, desc:st.type.description, clock:st.displayClock,
+        h:home, a:away, link, tv, ko, name:e.name};
+    });
+    renderLive(evs);
+    const liveCount=evs.filter(e=>e.state==='in').length;
+    status.innerHTML=`<span class="dot"></span> ${liveCount>0?`🔴 ${liveCount} meccs élőben`:'Jelenleg nincs élő meccs'} · frissítve: ${tnow()}`;
+    document.getElementById('upd').textContent=tnow();
+    updateWatch(evs);
+  }catch(err){
+    status.innerHTML=`⚠️ Nem sikerült betölteni az élő adatokat (${err.message}). Újrapróbálom…`;
+  }
+}
+function teamRow(t){
+  const logo=t.team.logo||'';
+  return `<div class="lteam"><img src="${logo}" alt="" onerror="this.style.display='none'">
+    <span class="nm">${t.team.displayName}</span><span class="sc">${t.score??''}</span></div>`;
+}
+function renderLive(evs){
+  const grid=document.getElementById('liveGrid');
+  if(!evs.length){grid.innerHTML=`<div class="match"><div class="meta">Ma nincs ütemezett mérkőzés</div></div>`;return;}
+  const order={in:0,pre:1,post:2};
+  evs.sort((a,b)=>(order[a.state]-order[b.state]));
+  grid.innerHTML=evs.map(e=>{
+    let badge,watch;
+    if(e.state==='in'){
+      badge=`<span class="lbadge live"><span class="min">${e.clock||e.detail}</span></span>`;
+      watch=`<a class="lwatch" href="#" onclick="openM4();return false;">📺 Nézd az M4 Sporton</a>`;
+    }else if(e.state==='pre'){
+      badge=`<span class="lbadge pre">⏱ ${e.ko}</span>`;
+      watch=`<a class="lwatch" href="#" onclick="openM4();return false;" style="background:var(--pill);color:#9fb0d6">📺 M4 Sport</a>`;
+    }else{
+      badge=`<span class="lbadge post">VÉGE</span>`;
+      watch=`<a class="lwatch" href="${e.link}" target="_blank" style="background:var(--pill);color:#9fb0d6">Összefoglaló</a>`;
+    }
+    return `<div class="lmatch ${e.state==='in'?'islive':''}">
+      <div class="lhead">${badge}<span class="lcomp">${e.desc}</span></div>
+      ${teamRow(e.h)}${teamRow(e.a)}
+      <div class="lfoot"><span class="ltv"></span>${watch}</div></div>`;
+  }).join('');
+}
+/* Open M4 Sport live stream in a dedicated, fullscreen-able window.
+   (M4 Sport blocks iframe embedding via X-Frame-Options/CSP, so a popup window
+   is the only way to show their live video; the player can go fullscreen.) */
+function openM4(){
+  const w=Math.min(screen.availWidth,1280), h=Math.min(screen.availHeight,760);
+  const x=(screen.availWidth-w)/2, y=(screen.availHeight-h)/2;
+  window.open('https://m4sport.hu/elo','m4sportlive',
+    `width=${w},height=${h},left=${x},top=${y},resizable=yes,scrollbars=yes`);
+}
+function updateWatch(evs){
+  const btn=document.getElementById('bigWatch'), sub=document.getElementById('whSub');
+  const live=evs.find(e=>e.state==='in');
+  if(live){
+    btn.innerHTML=`<span class="pulse"></span> 📺 Nézd élőben az M4 Sporton: ${live.h.team.abbreviation} ${live.h.score} – ${live.a.score} ${live.a.team.abbreviation} (${live.clock})`;
+    sub.innerHTML=`Most élőben (a pályán): ${live.h.team.displayName} – ${live.a.team.displayName} · az M4 Sport adása külön ablakban nyílik, F11-gyel teljes képernyő.`;
+  }else{
+    const next=evs.find(e=>e.state==='pre');
+    btn.innerHTML=`<span class="pulse"></span> M4 Sport élő megnyitása`;
+    sub.textContent=next?`Következő VB-meccs: ${next.h.team.displayName} – ${next.a.team.displayName} (${next.ko}) · az M4 Sport 0–24 él.`:'Az M4 Sport 0–24 él — külön ablakban nyílik, teljes képernyőre tehető.';
+  }
+}
+loadLive();
+setInterval(loadLive,30000);
+</script>
+</body>
+</html>
